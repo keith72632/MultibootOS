@@ -1,5 +1,5 @@
-CC = i386-elf-gcc
-LINK = i386-elf-ld
+CC = /usr/local/i386elfgcc/bin/i386-elf-gcc
+LINK = /usr/local/i386elfgcc/bin/i386-elf-ld
 FLAGS =  -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 CC_SOURCES = $(wildcard *.c cpu/*.c drivers/*.c)
@@ -10,11 +10,11 @@ all:run
 boot.o: boot.asm
 	nasm -felf32 $^ -o $@
 cpu/ports.o: cpu/ports.c
-	i386-elf-gcc -c cpu/ports.c -o cpu/ports.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	${CC} -c cpu/ports.c -o cpu/ports.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 drivers/display.o: 
-	i386-elf-gcc -c drivers/display.c -o drivers/display.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	${CC} -c drivers/display.c -o drivers/display.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 kernel.o: kernel.c
-	i386-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	${CC} -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 os-image.bin: boot.o kernel.o cpu/ports.o drivers/display.o ${HEADERS}
 	${CC} -T linker.ld -o os-image.bin -ffreestanding -O2 -nostdlib $^ -lgcc
 os-image.iso: os-image.bin
@@ -25,4 +25,4 @@ run: os-image.iso
 %.o: %.c
 	${CC} ${CC_SOURCES} -o $@ ${FLAGS}
 clean:
-	rm *.o *.bin *.iso cpu/*.o drivers/*.o
+	rm *.o *.bin *.iso cpu/*.o drivers/*.o isodir/boot/*.bin
