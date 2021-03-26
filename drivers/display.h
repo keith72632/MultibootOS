@@ -1,3 +1,4 @@
+#include <stdint.h>
 
 #define VGA_CTRL_REG 0x3d4
 #define VGA_DATA_REG 0x3d5
@@ -7,6 +8,7 @@
 #define MAX_ROWS 25
 #define MAX_COLS 80
 
+void cursor_init(uint8_t cursor_start, uint8_t cursor_end);
 int get_cursor();
 void set_cursor(int offset);
 void print_char(char character, int offset);
