@@ -39,12 +39,27 @@ void print_char(char character, int offset)
 {
     unsigned char *vidmem = (char *)0xb8000;
     vidmem[offset] = character;
-    vidmem[offset + 1] = 3;
+    vidmem[offset + 1] = 0x03;
 }
 
 int strln(char * string)
 {
-    for(int i= 0;i != '\0'; i++) return i;
+    for(int i= 0;string[i] != '\0'; i++) return i;
+}
+
+int get_offset(int col, int row)
+{
+    return 2 * (row * MAX_COLS + col);
+}
+
+int get_row_from_offset(int offset)
+{
+    return offset / (2 * MAX_COLS);
+}
+
+int move_offset_to_new_line(int offset)
+{
+    return get_offset(0, get_row_from_offset(offset) + 1);
 }
 
 void printk(char * string)
@@ -52,9 +67,13 @@ void printk(char * string)
     int offset = get_cursor();
     int i = 0;
     while(string[i] != 0){
-        print_char(string[i], offset);
-        //move offset 2 bytes to next character cell
-        offset += 2;
+        if(string[i] == '\n'){
+            offset = move_offset_to_new_line(offset);
+        }else {
+            print_char(string[i], offset);
+            //move offset 2 bytes to next character cell
+            offset += 2;
+        }
         i++;
     }
     set_cursor(offset);
