@@ -8,9 +8,8 @@
 #define MAX_ROWS 25
 #define MAX_COLS 80
 
-void cursor_init(uint8_t cursor_start, uint8_t cursor_end);
-int get_cursor();
-void set_cursor(int offset);
-void print_char(char character, int offset);
+#define VIDEO_ADDRESS 0xb8000
+
+
 int strln(char * string);
 void printk(char * string);

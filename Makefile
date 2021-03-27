@@ -3,7 +3,7 @@ LINK = /usr/local/i386elfgcc/bin/i386-elf-ld
 FLAGS =  -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 CC_SOURCES = $(wildcard *.c cpu/*.c drivers/*.c)
-HEADERS = $(wildcard cpu/*.h drivers/*.h)
+HEADERS = $(wildcard *.h cpu/*.h drivers/*.h)
 OBJ_FILES = ${C_SOURCES:.c=.o}
 all:run
 

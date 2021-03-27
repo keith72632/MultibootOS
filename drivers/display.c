@@ -7,15 +7,42 @@ get_cursor and set_cursor manipulate the display controllers register via I/O po
 cursor postion 16 bit. data register(0x3d5) will hold low byte if control register(0x3d4) is set to 15(0x0f),
 and the high byte if the value is set to 14 (0x0e). cursor offset represent video offset/2
 */
-void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
+
+/*******************************************************************************************************************
+ *                 Public Functions                                                                                *
+ *******************************************************************************************************************
+*/
+
+void printk(char * string)
 {
-	port_byte_out(0x3D4, 0x0A);
-	port_byte_out(0x3D5, (port_byte_in(0x3D5) & 0xC0) | cursor_start);
- 
-	port_byte_out(0x3D4, 0x0B);
-	port_byte_out(0x3D5, (port_byte_in(0x3D5) & 0xE0) | cursor_end);
+    int offset = get_cursor();
+    int i = 0;
+    while(string[i] != 0){
+        if(offset >= MAX_ROWS * MAX_COLS * 2){
+            scroll_ln(offset);
+        }
+        if(string[i] == '\n'){
+            offset = move_offset_to_new_line(offset);
+        }else {
+            print_char(string[i], offset);
+            //move offset 2 bytes to next character cell
+            offset += 2;
+        }
+        i++;
+    }
+    set_cursor(offset);
 }
 
+int strlen(char * string)
+{
+    for(int i = 0; string[i] != '\0'; ++i) return i;
+}
+
+
+/*******************************************************************************************************************
+ *                 Private Functions                                                                               *
+ *******************************************************************************************************************
+*/
 
 
 int get_cursor()
@@ -31,14 +58,7 @@ int get_cursor()
     //VGA cells consist of the character and its control data
     return offset * 2;
 }
-void terminal_set_cursor (int x, int y)
-{
-    uint16_t pos = y * 80 + x + 1;
-    port_byte_out(0x3D4, 0x0F);
-    port_byte_out(0x3D5, (uint8_t) (pos & 0xFF));
-    port_byte_out(0x3D4, 0x0E);
-    port_byte_out(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
-}
+
 void set_cursor(int offset)
 {
     //memory offset is double cursor offset
@@ -52,6 +72,7 @@ void set_cursor(int offset)
     //data from register 0c3d5 set to 0b110000
     port_byte_out(VGA_DATA_REG, (unsigned char)(offset & 0xff));
 }
+
 
 
 void print_char(char character, int offset)
@@ -81,20 +102,22 @@ int move_offset_to_new_line(int offset)
     return get_offset(0, get_row_from_offset(offset) + 1);
 }
 
-void printk(char * string)
+
+void mem_cpy(uint8_t * src, uint8_t * dest, uint32_t nbytes)
 {
-    enable_cursor(0, 15);
-    int offset = get_cursor();
-    int i = 0;
-    while(string[i] != 0){
-        if(string[i] == '\n'){
-            offset = move_offset_to_new_line(offset);
-        }else {
-            print_char(string[i], offset);
-            //move offset 2 bytes to next character cell
-            offset += 2;
-        }
-        i++;
+    for(int i = 0; i < nbytes; i++)
+        *(dest + i) = *(src + i);
+}
+
+int scroll_ln(int offset)
+{
+    mem_cpy(
+        (uint8_t *)(get_offset(0, 1) + 0xb8000),
+        (uint8_t *)(get_offset(0, 0) + 0xb8000),
+        MAX_COLS * (MAX_ROWS -1) * 2
+    );
+    for(int col = 0; col < MAX_COLS; col++){
+        print_char(' ', get_offset(col, MAX_ROWS -1));
     }
-    set_cursor(offset);
+    return offset -2 * MAX_COLS;
 }
