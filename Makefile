@@ -15,7 +15,13 @@ drivers/display.o:
 	${CC} -c drivers/display.c -o drivers/display.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 kernel.o: kernel.c
 	${CC} -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-os-image.bin: boot.o kernel.o cpu/ports.o drivers/display.o ${HEADERS}
+cpu/idt.o: cpu/idt.c
+	${CC} -c cpu/idt.c -o cpu/idt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+cpu/isr.o: cpu/isr.c
+	${CC} -c cpu/isr.c -o cpu/isr.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+cpu/gdt.o: cpu/gdt.c
+	${CC} -c cpu/gdt.c -o cpu/gdt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+os-image.bin: boot.o kernel.o cpu/ports.o drivers/display.o cpu/idt.o cpu/isr.o cpu/gdt.o ${HEADERS}
 	${CC} -T linker.ld -o os-image.bin -ffreestanding -O2 -nostdlib $^ -lgcc
 os-image.iso: os-image.bin
 	cp os-image.bin isodir/boot/
