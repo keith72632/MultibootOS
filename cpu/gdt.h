@@ -1,10 +1,9 @@
-#include <stdint.h>
+#ifndef __GDT_H
+#define __GDT_H
 
-typedef struct {
-    uint16_t limit_low;
-    uint16_t base_low;
-    uint8_t base_middle;
-    uint8_t access;
-    uint8_t granularity;
-    uint8_t base_high;
-} __attribute__((packed)) gdt_entry_t;
+/* GDT.C */
+extern void _gdt_flush();
+extern void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned char access, unsigned char gran);
+extern void gdt_install();
+
+#endif
