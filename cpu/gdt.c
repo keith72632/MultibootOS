@@ -85,5 +85,5 @@ void gdt_install()
 	//tss_install(5, 0x10, 0x0);
 
 	/* Flush our the old GDT / TSS and install the new changes! */
-	//_gdt_flush();
+	gdt_flush();
 }
