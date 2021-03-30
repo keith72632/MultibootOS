@@ -1,35 +1,48 @@
+/*
+ ************************************************************************************
+ *Global Descriptor Table
+ *x86 has two methods of memory protection and providing virtual memory: segmentation and paging
+ *Segmentation-every memory access is evalutated with respect to the segment
+ *Paging-every addresss space is split into blocks called pages
+ *Segmentation is slowly becoming obsolete.x86-64 requires flat mem model(base 0 - 0xffffffffff)
+ *Segmentation allows for the setting of ring levels*/
+
 #include "../common.h"
 #include "gdt.h"
 
 /* Defines a GDT entry.  We say packed, because it prevents the
  * compiler from doing things that it thinks is best, i.e.
  * optimization, etc. */
-struct gdt_entry
+struct gdt_entry_struct
 {
-	unsigned short limit_low;
-	unsigned short base_low;
-	unsigned char base_middle;
-	unsigned char access;
-	unsigned char granularity;
-	unsigned char base_high;
+	unsigned short limit_low;       //lower 16 bits of limit
+	unsigned short base_low;        //lower 16 bits of base
+	unsigned char base_middle;      //next 8 bits of base
+	unsigned char access;           //access flags, determines ring priv. 
+    //access flag layout: [gran|d|0|A|type|descriptor type|descript level priv|is seg present]
+	unsigned char granularity;      
+	unsigned char base_high;        //last 8 bits of base
 } __attribute__((packed));
 
 /* Special pointer which includes the limit: The max bytes
  * taken up by the GDT, minus 1.  Again, this NEEDS to be
  * packed */
-struct gdt_ptr
+struct gdt_ptr_struct
 {
-	unsigned short limit;
-	unsigned int base;
+	unsigned short limit;          //upper 16 bits of all selector limits
+	unsigned int base;             //address of first gdt_entry_t struct 
 } __attribute__((packed));
 
 /* Type definitions */
 typedef unsigned long int addr;
+typedef struct gdt_entry_struct gdt_entry_t;
+typedef struct gdt_ptr_struct gdt_ptr_t;
+
 
 
 /* Our GDT, with 3 entries, and finally our special GDT pointer */
-struct gdt_entry gdt[5];
-struct gdt_ptr _gp;
+gdt_entry_t gdt[5];
+gdt_ptr_t gdt_ptr;
 
 /* This will be a function in start.asm.  We use this to properly
  * reload the new segment registers */
@@ -60,8 +73,8 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 void gdt_install()
 {
 	/* Setup the GDT pointer and limit */
-	_gp.limit = (sizeof(struct gdt_entry) * 6) - 1;
-	_gp.base = (addr)&gdt;
+	gdt_ptr.limit = (sizeof(struct gdt_entry_struct) * 6) - 1;
+	gdt_ptr.base = (addr)&gdt;            //pointer to address of gdt[5]
 
 	/* Our NULL descriptor */
 	gdt_set_gate(0, 0, 0, 0, 0);
@@ -86,7 +99,7 @@ void gdt_install()
 	//tss_install(5, 0x10, 0x0);
 
 	/* Flush our the old GDT / TSS and install the new changes! */
-	gdt_flush((u32int)&_gp);
+	gdt_flush((u32int)&gdt_ptr);
 }
 
 void init_descriptor_tables()
