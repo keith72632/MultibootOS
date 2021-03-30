@@ -1,3 +1,4 @@
+#include "../common.h"
 #include "gdt.h"
 
 /* Defines a GDT entry.  We say packed, because it prevents the
@@ -85,5 +86,10 @@ void gdt_install()
 	//tss_install(5, 0x10, 0x0);
 
 	/* Flush our the old GDT / TSS and install the new changes! */
-	gdt_flush();
+	gdt_flush((u32int)&_gp);
+}
+
+void init_descriptor_tables()
+{
+	gdt_install();
 }
