@@ -3,8 +3,8 @@
 
 void isr_handler(registers_t regs)
 {
-   printk("recieved interrupt: ");
+   printk("\nrecieved interrupt: ");
    print_dec(regs.int_no);
-   //monitor_put('\n');
+   printk('\n');
 }
 

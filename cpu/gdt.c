@@ -7,7 +7,7 @@
  *Segmentation is slowly becoming obsolete.x86-64 requires flat mem model(base 0 - 0xffffffffff)
  *Segmentation allows for the setting of ring levels*/
 
-#include "../common.h"
+#include "../utils/common.h"
 #include "gdt.h"
 #include "idt.h"
 
@@ -74,9 +74,10 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 void gdt_install()
 {
 	/* Setup the GDT pointer and limit */
-	gdt_ptr.limit = (sizeof(struct gdt_entry_struct) * 6) - 1;
+	gdt_ptr.limit = (sizeof(struct gdt_entry_struct) * 5) - 1;
 	gdt_ptr.base = (addr)&gdt;            //pointer to address of gdt[5]
 
+	/*Notice the only thing that changes in each gate in the access byte, which determines user priviledge*/
 	/* Our NULL descriptor */
 	gdt_set_gate(0, 0, 0, 0, 0);
 
@@ -85,16 +86,16 @@ void gdt_install()
 	 * granularity, uses 32-bit opcodes, and is a Code Segment
 	 * descriptor.  Please check the table above in the tutorial
 	 * in order to see exactly what each value means */
-	gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
+	gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);//flags to 0b10011010
 
 	/* The third entry is our Data Segment.  It's exactly the
 	 * same as our code segment, but the descriptor type in
 	 * this entry's access byte says it's a Data Segment */
-	gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
+	gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);//flags to 0b10010010
 
 	/* Install the user mode segments into the GDT */
-	gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
-	gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
+	gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);//flags to 0b11111010
+	gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);//flags to 0b11110010
 
 	/* Install the TSS into the GDT */
 	//tss_install(5, 0x10, 0x0);

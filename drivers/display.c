@@ -1,7 +1,6 @@
-#include <stdint.h>
 #include "../cpu/ports.h"
 #include "display.h"
-#include "../common.h"
+#include "../utils/common.h"
 
 /*
 get_cursor and set_cursor manipulate the display controllers register via I/O ports

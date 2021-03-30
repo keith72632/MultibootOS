@@ -1,5 +1,5 @@
 #include "idt.h"
-#include "../common.h"
+#include "../utils/common.h"
 
 u16int get_low(u32int num){ return num & 0xffff; }
 u16int get_high(u32int num){ return (num >> 16) & 0xffff; }

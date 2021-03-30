@@ -33,6 +33,9 @@
 
 ;Common ISR stub. Saves processor state, sets up kernel code segments, 
 ;calls C-level fault handler, and restores stack fram
+;when processor recieves interrupt, it saves the contents of essential register:
+;instruction pointer, stack pointer, code and data segment, flag register to the stack.
+;then, finds interrupt handler location for IDT and jumps to it
 
 extern isr_handler
 isr_common_stub:

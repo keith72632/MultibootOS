@@ -1,4 +1,4 @@
-#include "../common.h"
+#include "../utils/common.h"
 
 #define VGA_CTRL_REG 0x3d4
 #define VGA_DATA_REG 0x3d5

@@ -1,11 +1,11 @@
-#include "../common.h"
+#include "../utils/common.h"
 
 typedef struct {
     u16int low_offset;          //first 16
     u16int selector;            //has to be 0 so the iret instruction won't throw a #GP exception
     u8int unused;               //always zero
     u8int flags;
-    u16int high_offset;
+    u16int high_offset;         //last 8 bits of base
 }__attribute__((packed)) gate_t;
 
 typedef struct {

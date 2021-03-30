@@ -1,10 +1,10 @@
 #include <stdbool.h>
 #include <stddef.h>
-#include "common.h"
-#include "cpu/ports.h"
-#include "drivers/display.h"
+#include "../utils/common.h"
+#include "../cpu/ports.h"
+#include "../drivers/display.h"
 #include "kernel.h"
-#include "cpu/gdt.h"
+#include "../cpu/gdt.h"
  
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -46,7 +46,6 @@ void kernel_main(void)
  
 	/* Newline support is left as an exercise. */
 	printk("hello bitches\n");
-	printk("end");
 
 	asm volatile("int $0x3");
 	asm volatile("int $0x4");
