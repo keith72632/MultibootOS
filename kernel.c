@@ -1,9 +1,10 @@
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
+#include "common.h"
 #include "cpu/ports.h"
 #include "drivers/display.h"
 #include "kernel.h"
+#include "cpu/gdt.h"
  
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -24,11 +25,11 @@ static const size_t VGA_HEIGHT = 25;
  
 size_t terminal_row;
 size_t terminal_column;
-uint8_t terminal_color;
-uint16_t* terminal_buffer;
+u8int terminal_color;
+u16int* terminal_buffer;
  
 
-void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
+void enable_cursor(u8int cursor_start, u8int cursor_end)
 {
 	port_byte_out(0x3D4, 0x0A);
 	port_byte_out(0x3D5, (port_byte_in((0x3D5)&0xC0) | cursor_start));
@@ -38,6 +39,7 @@ void enable_cursor(uint8_t cursor_start, uint8_t cursor_end)
  
 void kernel_main(void) 
 {
+	init_descriptor_tables();
 	/*Grub disables cursor, So need to initalize first*/
 	enable_cursor(14, 15);
 	//terminal_initialize();
@@ -45,4 +47,7 @@ void kernel_main(void)
 	/* Newline support is left as an exercise. */
 	printk("hello bitches\n");
 	printk("end");
+
+	asm volatile("int $0x3");
+	asm volatile("int $0x4");
 }

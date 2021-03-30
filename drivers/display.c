@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "../cpu/ports.h"
 #include "display.h"
+#include "../common.h"
 
 /*
 get_cursor and set_cursor manipulate the display controllers register via I/O ports
@@ -31,6 +32,33 @@ void printk(char * string)
         i++;
     }
     set_cursor(offset);
+}
+
+void print_dec(u32int n)
+{
+    int offset = get_cursor();
+    if(n == 0)
+    {
+        print_char(0, offset);
+    }
+    s32int acc = n;
+    char c[32];
+    int i = 0;
+    while(acc > 0)
+    {
+        c[i] = '0' + acc%10;
+        acc /= 10;
+        i++;
+    }
+    c[i] = 0;
+    char c2[32];
+    c2[i--] = 0;
+    int j = 0;
+    while(i >= 0)
+    {
+        c2[i--] = c[j++];
+    }
+    printk(c2);
 }
 
 int strlen(char * string)
@@ -103,7 +131,7 @@ int move_offset_to_new_line(int offset)
 }
 
 
-void mem_cpy(uint8_t * src, uint8_t * dest, uint32_t nbytes)
+void mem_cpy(u8int * src, u8int * dest, u32int nbytes)
 {
     for(int i = 0; i < nbytes; i++)
         *(dest + i) = *(src + i);
@@ -112,8 +140,8 @@ void mem_cpy(uint8_t * src, uint8_t * dest, uint32_t nbytes)
 int scroll_ln(int offset)
 {
     mem_cpy(
-        (uint8_t *)(get_offset(0, 1) + 0xb8000),
-        (uint8_t *)(get_offset(0, 0) + 0xb8000),
+        (u8int *)(get_offset(0, 1) + 0xb8000),
+        (u8int *)(get_offset(0, 0) + 0xb8000),
         MAX_COLS * (MAX_ROWS -1) * 2
     );
     for(int col = 0; col < MAX_COLS; col++){

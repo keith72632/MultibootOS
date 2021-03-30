@@ -9,6 +9,7 @@
 
 #include "../common.h"
 #include "gdt.h"
+#include "idt.h"
 
 /* Defines a GDT entry.  We say packed, because it prevents the
  * compiler from doing things that it thinks is best, i.e.
@@ -105,4 +106,5 @@ void gdt_install()
 void init_descriptor_tables()
 {
 	gdt_install();
+	init_idt();
 }

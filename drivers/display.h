@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "../common.h"
 
 #define VGA_CTRL_REG 0x3d4
 #define VGA_DATA_REG 0x3d5
@@ -10,6 +10,7 @@
 
 #define VIDEO_ADDRESS 0xb8000
 
-
 int strln(char * string);
 void printk(char * string);
+void print_dec(u32int n);
+

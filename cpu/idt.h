@@ -1,17 +1,19 @@
-#include <stdint.h>
+#include "../common.h"
 
 typedef struct {
-    uint16_t low_offset;          //first 16
-    uint16_t selector;            //has to be 0 so the iret instruction won't throw a #GP exception
-    uint8_t unused;               //always zero
-    uint8_t flags;
-    uint16_t high_offset;
+    u16int low_offset;          //first 16
+    u16int selector;            //has to be 0 so the iret instruction won't throw a #GP exception
+    u8int unused;               //always zero
+    u8int flags;
+    u16int high_offset;
 }__attribute__((packed)) gate_t;
 
 typedef struct {
-    uint16_t limit;
-    uint32_t base;
+    u16int limit;
+    u32int base;
 }__attribute__((packed)) idt_register;
+
+void init_idt();
 
 extern void isr0();
 extern void isr1();
@@ -45,3 +47,4 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+
