@@ -48,5 +48,5 @@ void kernel_main(void)
 	printk("hello bitches\n");
 
 	asm volatile("int $0x3");
-	asm volatile("int $0x4");
+	asm volatile("int $0x11");
 }

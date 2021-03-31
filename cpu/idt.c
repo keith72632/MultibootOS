@@ -1,5 +1,29 @@
+/**************************************************************************************
+ *                  Interrut Request Servces (IRQs)                                   *
+ **************************************************************************************
+ In protect mode with GRUB IRQs must be remapped as to not confilct with other processes.
+ An IDT (Interrupt desriptor table) must be established. Consists of 256 gates. Each gate
+ specifies the 32 bit offset split into half, segement selector, and flags to be set refering
+ to the use privilege. The offset is establish by feeding a 'handler' which is then coded in 
+ assembly. In our flat model operating system, segment selector is the same. 
+ ***************************************************************************************
+*/
+
+/***************************************************************************************
+ *                    Interrupt Requests (IRQs)                                        *
+ ***************************************************************************************
+ This is one of two ways of commuincating with external devices (interrupts and polling)
+ All devices that are interrupt capable are connected via line to PIC (Progammable Interrupt
+ Controller). Modern pcs have to PICs, a master and a slave, a total of 15 interrupt devices.
+ Change of interrupt number is possible by witring to ports via the IRQ line. This is used to 
+ remap default IRQs because the original no conflict with the IRQs coded for 32 bit. Ports for
+ each PIC are: Master = 0x20 for command and 0x21 for data, Slave=0xA0 for command and 0xA1 for 
+ data.
+*/
+
 #include "idt.h"
 #include "../utils/common.h"
+#include "ports.h"
 
 u16int get_low(u32int num){ return num & 0xffff; }
 u16int get_high(u32int num){ return (num >> 16) & 0xffff; }
@@ -56,6 +80,22 @@ void init_idt()
     set_idt_gate(29, (u32int)isr29, 0x8E, 0x08);
     set_idt_gate(30, (u32int)isr30, 0x8E, 0x08);
     set_idt_gate(31, (u32int)isr31, 0x8E, 0x08);
+
+    /*Remapping of irq table*/
+    port_byte_out(0x20, 0x11);
+    port_byte_out(0xA0, 0x11);
+
+    port_byte_out(0x21, 0x20);
+    port_byte_out(0xA1, 0x28);
+
+    port_byte_out(0x21, 0x04);
+    port_byte_out(0xA1, 0x02);
+
+    port_byte_out(0x21, 0x01);
+    port_byte_out(0xA1, 0x01);
+
+    port_byte_out(0x21, 0x0);
+    port_byte_out(0xA1, 0x0);
 
     idt_flush((u32int)&idt_reg);
 }
