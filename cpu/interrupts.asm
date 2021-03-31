@@ -31,6 +31,7 @@
 [GLOBAL isr30]
 [GLOBAL isr31]
 
+
 ;Common ISR stub. Saves processor state, sets up kernel code segments, 
 ;calls C-level fault handler, and restores stack fram
 ;when processor recieves interrupt, it saves the contents of essential register:
@@ -63,6 +64,30 @@ isr_common_stub:
     sti
     iret
 
+extern irq_handler
+;Save processor state, sets up kernel mode segments, call C-level fault handler, 
+;and restores stack frames
+irq_common_stub:
+    pusha                       ;Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+    mov ax, ds                  ;Lower 16 bits of eax = ds
+    push eax                    ;save data segment descriptor
+
+    mov ax, 0x10                ;load the kernel data segment descriptor
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    call irq_handler
+
+    pop ebx                     ;reload the original data segment descriptor
+    add esp, 8                  ;Cleans up the pushed error code and push isr number
+    sti                      
+    iret
+
+;********************************************************************************;
+;                                 Interrupts                                     ;
+;********************************************************************************;
 isr0:
     cli                  ;disable interrupt 
     push byte 0          ;Push a dummy error code (if isr0 doesnt push its own error code)
@@ -224,3 +249,30 @@ isr31:
     push byte 0
     push byte 31
     jmp isr_common_stub
+
+
+;irq handlers
+%macro IRQ 2
+    global irq%1
+    irq%1:
+        push byte 0
+        push byte %2
+        jmp irq_common_stub
+%endmacro
+
+IRQ 0, 32
+IRQ 1, 33
+IRQ 2, 34
+IRQ 3, 35
+IRQ 4, 36
+IRQ 5, 37
+IRQ 6, 38
+IRQ 7, 39
+IRQ 8, 40
+IRQ 9, 41
+IRQ 10, 42
+IRQ 11, 43
+IRQ 12, 44
+IRQ 13, 45
+IRQ 14, 46
+IRQ 15, 47
