@@ -47,7 +47,8 @@ void init_idt()
     idt_reg.base = (u32int)&idt;
     idt_reg.limit = 256 * sizeof(gate_t) -1; // minus one because 0 indexed
 
-
+/*argument: interrupt number, handler function in asm, flags, segment offset*/
+/*Test internal interrupt by using asm volatile(int $int_no in hex)*/
     set_idt_gate(0, (u32int)isr0, 0x8E, 0x08);
     set_idt_gate(1, (u32int)isr1, 0x8E, 0x08);
     set_idt_gate(2, (u32int)isr2, 0x8E, 0x08);
@@ -119,5 +120,6 @@ void init_idt()
     set_idt_gate(46, (u32int)irq14, 0x8E, 0x08);
     set_idt_gate(47, (u32int)irq15, 0x8E, 0x08);
     
+    /*mov value of stack pointer +4 to eax, then lidt, then return*/
     idt_flush((u32int)&idt_reg);
 }

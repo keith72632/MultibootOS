@@ -6,7 +6,6 @@
 
 #include "../utils/common.h"
 
-
 typedef struct registers
 {
    u32int ds;                  // Data segment selector
@@ -19,4 +18,5 @@ typedef struct registers
 *registers in asm, ad adds this interrupt to an isr_t array in the indexed postion that is same as the int_no
 *in interrupt*/
 typedef void (*isr_t)(registers_t);
-void register_interrupt_handler(u8int n, isr_t handler);
+void register_interrupt_handlers(u8int n, isr_t handler);
+

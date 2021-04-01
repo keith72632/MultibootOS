@@ -5,6 +5,9 @@
 #include "../drivers/display.h"
 #include "kernel.h"
 #include "../cpu/gdt.h"
+#include "../utils/common.h"
+#include "../cpu/isr.h"
+#include "../cpu/timer.h"
  
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -15,18 +18,6 @@
 #if !defined(__i386__)
 //#error "This tutorial needs to be compiled with a ix86-elf compiler"
 #endif
- 
-
- 
-
- 
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
- 
-size_t terminal_row;
-size_t terminal_column;
-u8int terminal_color;
-u16int* terminal_buffer;
  
 
 void enable_cursor(u8int cursor_start, u8int cursor_end)
@@ -40,6 +31,7 @@ void enable_cursor(u8int cursor_start, u8int cursor_end)
 void kernel_main(void) 
 {
 	init_descriptor_tables();
+	init_timer(50);
 	/*Grub disables cursor, So need to initalize first*/
 	enable_cursor(14, 15);
 	//terminal_initialize();
@@ -49,4 +41,5 @@ void kernel_main(void)
 
 	asm volatile("int $0x3");
 	asm volatile("int $0x11");
+	asm volatile("int $0x1f");
 }

@@ -3,7 +3,7 @@ LINK = /usr/local/i386elfgcc/bin/i386-elf-ld
 FLAGS = -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 
 CC_SOURCES = $(wildcard *.c cpu/*.c drivers/*.c)
-HEADERS = $(wildcard *.h cpu/*.h drivers/*.h kernel/*.h)
+HEADERS = $(wildcard *.h cpu/*.h drivers/*.h kernel/*.h utils/*.h)
 OBJ_FILES = ${C_SOURCES:.c=.o}
 all:run
 
@@ -21,6 +21,8 @@ drivers/display.o:
 	${CC} -c drivers/display.c -o drivers/display.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 common.o: utils/common.c
 	${CC} -c $^ -o $@ ${FLAGS}
+timer.o: cpu/timer.c
+	${CC} -c $^ -o $@ ${FLAGS}
 kernel.o: kernel/kernel.c
 	${CC} -c kernel/kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 cpu/idt.o: cpu/idt.c
@@ -29,7 +31,7 @@ isr.o: cpu/isr.c
 	${CC} -c cpu/isr.c -o cpu/isr.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 cpu/gdt.o: cpu/gdt.c
 	${CC} -c cpu/gdt.c -o cpu/gdt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-os-image.bin: boot.o gdt.o idt_flush.o interrupts.o kernel.o cpu/ports.o drivers/display.o cpu/idt.o cpu/gdt.o cpu/isr.o common.o ${HEADERS}
+os-image.bin: boot.o gdt.o idt_flush.o interrupts.o kernel.o cpu/ports.o drivers/display.o cpu/idt.o cpu/gdt.o cpu/isr.o timer.o common.o ${HEADERS}
 	${CC} -T linker.ld -o os-image.bin -ffreestanding -O2 -nostdlib $^ -lgcc
 os-image.iso: os-image.bin
 	cp os-image.bin isodir/boot/

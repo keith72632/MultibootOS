@@ -13,6 +13,16 @@ and the high byte if the value is set to 14 (0x0e). cursor offset represent vide
  *******************************************************************************************************************
 */
 
+int get_cursor();
+void set_cursor(int offset);
+void print_char(char character, int offset);
+int strln(char * string);
+int get_offset(int col, int row);
+int scroll_ln(int offset);
+int move_offset_to_new_line(int offset);
+
+
+
 void printk(char * string)
 {
     int offset = get_cursor();

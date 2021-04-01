@@ -1,6 +1,7 @@
 #include "isr.h"
 #include "../drivers/display.h"
 #include "ports.h"
+#include "timer.h"
 
 /* To print the message which defines every exception */
 char *exception_messages[] = {
@@ -41,6 +42,7 @@ char *exception_messages[] = {
         ": Reserved"
 };
 
+/*called in interrupt.asm*/
 void isr_handler(registers_t regs)
 {
    printk("\nrecieved interrupt: ");
@@ -49,11 +51,13 @@ void isr_handler(registers_t regs)
    printk('\n');
 }
 
-isr_t interrupt_handlers[256];
+/*This is a custom type array of all handlers*/
+isr_t irq_interrupt_handlers[256];
 
+/*This will be called in every driver function to register handler to irq_interrupt_handlers[]*/
 void register_interrupt_handlers(u8int n, isr_t handler)
 {
-	interrupt_handlers[n] = handler;
+	irq_interrupt_handlers[n] = handler;
 }
 
 /*Must tell processor when finished with IRQ*/
@@ -68,12 +72,12 @@ void irq_handler(registers_t regs)
 	//Send reset to master
 	port_byte_out(0x20, 0x20);
 
-	if(interrupt_handlers[regs.int_no] != 0)
+	if(irq_interrupt_handlers[regs.int_no] != 0)
 	{
 		/*this is a custom function handler that allow for custum interrupts. It takes the errors and numbers from 
 		*registers in asm, ad adds this interrupt to an isr_t array in the indexed postion that is same as the int_no
 		*in interrupt*/
-		isr_t handler = interrupt_handlers[regs.int_no];
+		isr_t handler = irq_interrupt_handlers[regs.int_no];
 		handler(regs);
 	}	
 }
