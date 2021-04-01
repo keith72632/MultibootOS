@@ -1,3 +1,4 @@
 1. Change system interrupt handlers(0-31) in interrupt.asm to macros
 2. Screen scroll past bottom of page. Right now it goes black when printing past bottom
 3. Keyboard driver functional, but needs scancodes mapped to characters
+4. Add a function that prints a four space tab

@@ -13,4 +13,9 @@
 int strln(char * string);
 void printk(char * string);
 void print_dec(u32int n);
+int get_cursor();
+void print_char(char character, int offset);
+void printc(char character);
+
+
 

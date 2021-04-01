@@ -28,7 +28,7 @@ void kernel_main(void)
 {
 	init_descriptor_tables();
 
-	printk("TrashOS\n");
+	printk("TrashOS\n>");
 
 	enable_interrupts();
 	

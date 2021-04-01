@@ -110,7 +110,16 @@ void set_cursor(int offset)
     port_byte_out(VGA_DATA_REG, (unsigned char)(offset & 0xff));
 }
 
+void printc(char character)
+{
+    int offset = get_cursor();
 
+    print_char(character, offset);
+
+    offset += 2;
+
+    set_cursor(offset);
+}
 
 void print_char(char character, int offset)
 {
