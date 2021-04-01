@@ -20,6 +20,27 @@
 //#error "This tutorial needs to be compiled with a ix86-elf compiler"
 #endif
  
+/****************************************************************************
+ *                              Kernel Main                                 *
+ ****************************************************************************/
+
+void kernel_main(void) 
+{
+	init_descriptor_tables();
+
+	printk("TrashOS\n");
+
+	enable_interrupts();
+	
+	init_keyboard();
+
+	/*Loops cpu*/
+	cpu_continue();
+}
+
+/****************************************************************************
+ *                              Kernel Main                                 *
+ ****************************************************************************/
 
 void enable_cursor(u8int cursor_start, u8int cursor_end)
 {
@@ -29,23 +50,13 @@ void enable_cursor(u8int cursor_start, u8int cursor_end)
 	port_byte_out(0x3D5, (port_byte_in((0x3D5) & 0xE0) | cursor_end));
 }
  
-void kernel_main(void) 
+void enable_interrupts()
 {
-	init_descriptor_tables();
-	/*Grub disables cursor, So need to initalize first*/
-	//enable_cursor(14, 15);
-	
-	/* Newline support is left as an exercise. */
-	printk("hello bitches\n");
-
-
 	asm volatile("sti");
-	asm volatile("int $0x01");
+}
 
-	init_timer(50);	
-	init_keyboard();
-
-	for(;;){
-		asm("hlt");
-	}
+void cpu_continue()
+{
+	for(;;)
+		asm volatile("hlt");
 }

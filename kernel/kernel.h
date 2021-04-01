@@ -21,4 +21,9 @@ enum vga_color {
 	VGA_COLOR_WHITE = 15,
 };
 
+void enable_interrupts();
+void cpu_continue();
+
+
+
 #endif

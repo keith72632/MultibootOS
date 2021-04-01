@@ -17,12 +17,7 @@ u32int tick = 0;
 
 static void timer_callback(registers_t regs)
 {
-    if(tick < 10)
-    {
-    printk("Tick: ");
-    print_dec(tick);    
-    printk("\n");
-    }
+  
     tick++;
 
 }
