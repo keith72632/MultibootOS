@@ -8,7 +8,8 @@
 #include "../utils/common.h"
 #include "../cpu/isr.h"
 #include "../cpu/timer.h"
- 
+#include "../drivers/keyboard.h"
+
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
 //#error "You are not using a cross-compiler, you will most certainly run into trouble"
@@ -31,15 +32,20 @@ void enable_cursor(u8int cursor_start, u8int cursor_end)
 void kernel_main(void) 
 {
 	init_descriptor_tables();
-	init_timer(50);
 	/*Grub disables cursor, So need to initalize first*/
-	enable_cursor(14, 15);
-	//terminal_initialize();
- 
+	//enable_cursor(14, 15);
+	
 	/* Newline support is left as an exercise. */
 	printk("hello bitches\n");
 
-	asm volatile("int $0x3");
-	asm volatile("int $0x11");
-	asm volatile("int $0x1f");
+
+	asm volatile("sti");
+	asm volatile("int $0x01");
+
+	init_timer(50);	
+	init_keyboard();
+
+	for(;;){
+		asm("hlt");
+	}
 }

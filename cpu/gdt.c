@@ -10,19 +10,21 @@
 #include "../utils/common.h"
 #include "gdt.h"
 #include "idt.h"
+#include "../utils/common.h"
+#include "isr.h"
 
 /* Defines a GDT entry.  We say packed, because it prevents the
  * compiler from doing things that it thinks is best, i.e.
  * optimization, etc. */
 struct gdt_entry_struct
 {
-	unsigned short limit_low;       //lower 16 bits of limit
-	unsigned short base_low;        //lower 16 bits of base
-	unsigned char base_middle;      //next 8 bits of base
-	unsigned char access;           //access flags, determines ring priv. 
+	u16int limit_low;       //lower 16 bits of limit
+	u16int base_low;        //lower 16 bits of base
+	u8int base_middle;      //next 8 bits of base
+	u8int access;           //access flags, determines ring priv. 
     //access flag layout: [gran|d|0|A|type|descriptor type|descript level priv|is seg present]
-	unsigned char granularity;      
-	unsigned char base_high;        //last 8 bits of base
+	u8int granularity;      
+	u8int base_high;        //last 8 bits of base
 } __attribute__((packed));
 
 /* Special pointer which includes the limit: The max bytes
@@ -30,8 +32,8 @@ struct gdt_entry_struct
  * packed */
 struct gdt_ptr_struct
 {
-	unsigned short limit;          //upper 16 bits of all selector limits
-	unsigned int base;             //address of first gdt_entry_t struct 
+	u16int limit;          //upper 16 bits of all selector limits
+	u32int base;             //address of first gdt_entry_t struct 
 } __attribute__((packed));
 
 /* Type definitions */
@@ -45,12 +47,13 @@ typedef struct gdt_ptr_struct gdt_ptr_t;
 gdt_entry_t gdt[5];
 gdt_ptr_t gdt_ptr;
 
+
 /* This will be a function in start.asm.  We use this to properly
  * reload the new segment registers */
 //extern void _gdt_flush();
 
 /* Setup a descriptor in the Global Descriptor Table */
-void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned char access, unsigned char gran)
+void gdt_set_gate(s32int num, u32int base, u32int limit, u8int access, u8int gran)
 {
 	/* Setup the descriptor base access */
 	gdt[num].base_low = (base & 0xFFFF);
@@ -62,7 +65,7 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 	gdt[num].granularity = ((limit >> 16) & 0x0F);
 
 	/* Finally, set up the granularity and access flags */
-	gdt[num].granularity |= (gran & 0xF0);
+	gdt[num].granularity |= gran & 0xF0;
 	gdt[num].access = access;
 }
 
@@ -108,4 +111,7 @@ void init_descriptor_tables()
 {
 	gdt_install();
 	init_idt();
+
+	//nullify al interrupt handlers
+	memset(&irq_interrupt_handlers, 0, sizeof(isr_t)*256);
 }

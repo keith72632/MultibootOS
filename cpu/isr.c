@@ -63,14 +63,6 @@ void register_interrupt_handlers(u8int n, isr_t handler)
 /*Must tell processor when finished with IRQ*/
 void irq_handler(registers_t regs)
 {
-    //Send EOI signal to PICs
-    //Check if Slave 
-    if(regs.int_no >= 40){
-        //Send reset to slave
-        port_byte_out(0xA0, 0x20);
-    }
-	//Send reset to master
-	port_byte_out(0x20, 0x20);
 
 	if(irq_interrupt_handlers[regs.int_no] != 0)
 	{
@@ -80,5 +72,15 @@ void irq_handler(registers_t regs)
 		isr_t handler = irq_interrupt_handlers[regs.int_no];
 		handler(regs);
 	}	
+    //Send EOI signal to PICs
+    //Check if Slave 
+    if(regs.int_no >= 40){
+        //Send reset to slave
+        outb(0xA0, 0x20);
+    } else {
+    	//Send reset to master
+    	outb(0x20, 0x20);
+    }
+
 }
 

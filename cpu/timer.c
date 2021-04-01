@@ -11,38 +11,41 @@ a divisor.
 #include "timer.h"
 #include "isr.h"
 #include "../drivers/display.h"
-#include "ports.h"
+#include "../utils/common.h"
 
 u32int tick = 0;
 
-
 static void timer_callback(registers_t regs)
 {
-    tick++;
+    if(tick < 10)
+    {
     printk("Tick: ");
-    print_dec(tick);
+    print_dec(tick);    
     printk("\n");
+    }
+    tick++;
+
 }
 
 void init_timer(u32int frequency)
 {
-    //registers interrupt for system clock at index 32 of interrupt_handlers
-    register_interrupt_handlers(32, &timer_callback);
+    // Firstly, register our timer callback.
+    register_interrupt_handlers(IRQ0, &timer_callback);
 
-   // The value we send to the PIT is the value to divide it's input clock
-   // (1193180 Hz) by, to get our required frequency. Important to note is
-   // that the divisor must be small enough to fit into 16-bits.
-   u32int divisor = 1193180 / frequency;
+    // The value we send to the PIT is the value to divide it's input clock
+    // (1193180 Hz) by, to get our required frequency. Important to note is
+    // that the divisor must be small enough to fit into 16-bits.
+    u32int divisor = 1193180 / frequency;
 
-    //send byte to command register 
-    //sets the PIT to repeating mode, so when counters divisor reaches zero, its automatically refreshed
-    port_byte_out(0x43, 0x36);
+    // Send the command byte.
+    outb(0x43, 0x36);
 
-    u8int low = (divisor & 0xFF);
-    u8int high = (divisor >> 8) & 0xFF;
+    // Divisor has to be sent byte-wise, so split here into upper/lower bytes.
+    u8int l = (u8int)(divisor & 0xFF);
+    u8int h = (u8int)( (divisor>>8) & 0xFF );
 
-    //send the frequency drive
-    port_byte_out(0x40, low);
-    port_byte_out(0x40, high);
-
+    // Send the frequency divisor.
+    outb(0x40, l);
+    outb(0x40, h);
 }
+
