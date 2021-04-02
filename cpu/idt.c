@@ -23,7 +23,6 @@
 
 #include "idt.h"
 #include "../utils/common.h"
-#include "ports.h"
 
 u16int get_low(u32int num){ return num & 0xffff; }
 u16int get_high(u32int num){ return (num >> 16) & 0xffff; }
@@ -85,24 +84,24 @@ void init_idt()
 
     /*Remapping of irq table*/
     /*ICW1(Tells PIC to wait for three input words*/
-    port_byte_out(0x20, 0x11);        //starts intialization in cascade mode
-    port_byte_out(0xA0, 0x11);
+    outb(0x20, 0x11);        //starts intialization in cascade mode
+    outb(0xA0, 0x11);
 
     /*ICW2(vector offset)*/
-    port_byte_out(0x21, 0x20);       //ICW2 Master Offset
-    port_byte_out(0xA1, 0x28);       //ICW2 Slave Offset
+    outb(0x21, 0x20);       //ICW2 Master Offset
+    outb(0xA1, 0x28);       //ICW2 Slave Offset
 
     /*ICW3 (Tells PIC how its wired to master/slave*/
-    port_byte_out(0x21, 0x04);
-    port_byte_out(0xA1, 0x02);
+    outb(0x21, 0x04);
+    outb(0xA1, 0x02);
 
     /*ICW4 (Gives info about environment*/
-    port_byte_out(0x21, 0x01);
-    port_byte_out(0xA1, 0x01);
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
 
     /*OCW1 (operational command word) enable all IRQs*/
-    port_byte_out(0x21, 0x0);
-    port_byte_out(0xA1, 0x0);
+    outb(0x21, 0x0);
+    outb(0xA1, 0x0);
 
     set_idt_gate(32, (u32int)irq0, 0x08, 0x8E);
     set_idt_gate(33, (u32int)irq1, 0x08, 0x8E);

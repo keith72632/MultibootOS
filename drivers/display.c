@@ -1,4 +1,3 @@
-#include "../cpu/ports.h"
 #include "display.h"
 #include "../utils/common.h"
 
@@ -85,13 +84,13 @@ int strlen(char * string)
 int get_cursor()
 {
     //write data to register 0x3d4 on port requesting byte 14, the high byte of cursor
-    port_byte_out(VGA_CTRL_REG, 0x0E);//14 == 0b1110
+    outb(VGA_CTRL_REG, 0x0E);//14 == 0b1110
     //read data from register 0x3d5 left shifter by one byte to the High Byte
-    int offset = port_byte_in(VGA_DATA_REG) << 8; //0b0011 -> 0000001100000000
+    int offset = inb(VGA_DATA_REG) << 8; //0b0011 -> 0000001100000000
     //request data from register 0x3d4 requesting low byte (15)
-    port_byte_out(VGA_CTRL_REG, 0x0F);//0b1111
+    outb(VGA_CTRL_REG, 0x0F);//0b1111
     //add high byte and low byte togethr 
-    offset += port_byte_in(VGA_DATA_REG);//(786)0b1100000000 + (112)0b0001110000 = 0b1101110000
+    offset += inb(VGA_DATA_REG);//(786)0b1100000000 + (112)0b0001110000 = 0b1101110000
     //VGA cells consist of the character and its control data
     return offset * 2;
 }
@@ -101,13 +100,13 @@ void set_cursor(int offset)
     //memory offset is double cursor offset
     offset/= 2;
     //request data from register 0x3d4 on port 0x0e 14 0b1110
-    port_byte_out(VGA_CTRL_REG, 14);
+    outb(VGA_CTRL_REG, 14);
     //request data from register 0x3d5 port right shfited one byte             
-    port_byte_out(VGA_DATA_REG, (unsigned char)(offset >> 8));
+    outb(VGA_DATA_REG, (unsigned char)(offset >> 8));
     //request data from register 0x3d4 on port 0x0f 15 0b1111
-    port_byte_out(VGA_CTRL_REG, 15);
+    outb(VGA_CTRL_REG, 15);
     //data from register 0c3d5 set to 0b110000
-    port_byte_out(VGA_DATA_REG, (unsigned char)(offset & 0xff));
+    outb(VGA_DATA_REG, (unsigned char)(offset & 0xff));
 }
 
 void printc(char character)

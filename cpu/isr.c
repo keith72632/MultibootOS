@@ -1,6 +1,5 @@
 #include "isr.h"
 #include "../drivers/display.h"
-#include "ports.h"
 #include "timer.h"
 
 /* To print the message which defines every exception */

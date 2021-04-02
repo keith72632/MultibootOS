@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "../utils/common.h"
-#include "../cpu/ports.h"
 #include "../drivers/display.h"
 #include "kernel.h"
 #include "../cpu/gdt.h"
@@ -41,15 +40,8 @@ void kernel_main(void)
 /****************************************************************************
  *                              Kernel Main                                 *
  ****************************************************************************/
-
-void enable_cursor(u8int cursor_start, u8int cursor_end)
-{
-	port_byte_out(0x3D4, 0x0A);
-	port_byte_out(0x3D5, (port_byte_in((0x3D5)&0xC0) | cursor_start));
-	port_byte_out(0x3D4, 0x0B);
-	port_byte_out(0x3D5, (port_byte_in((0x3D5) & 0xE0) | cursor_end));
-}
  
+
 void enable_interrupts()
 {
 	asm volatile("sti");
