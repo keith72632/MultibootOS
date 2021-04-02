@@ -16,6 +16,8 @@ void print_dec(u32int n);
 int get_cursor();
 void print_char(char character, int offset);
 void printc(char character);
+int move_offset_to_new_line(int offset);
+void set_cursor(int offset);
 
 
 
